@@ -291,6 +291,22 @@
         <p>
           <a class="link-underline" href="assets/files/marcus-fogg-cv.pdf" target="_blank" rel="noopener">Download my CV</a>
         </p>
+
+        <!-- Sized to the column rather than the page: the file is 1000px wide,
+             so at roughly 540px on screen it lands at 2x and stays sharp. -->
+        <figure class="about__photo">
+          <picture>
+            <source type="image/webp"
+                    srcset="assets/img/workshop-640.webp 640w, assets/img/workshop-1000.webp 1000w"
+                    sizes="(min-width: 56rem) 34vw, 90vw">
+            <img src="assets/img/workshop-1000.jpg"
+                 srcset="assets/img/workshop-640.jpg 640w, assets/img/workshop-1000.jpg 1000w"
+                 sizes="(min-width: 56rem) 34vw, 90vw"
+                 width="1000" height="557"
+                 alt="Marcus writing a test plan on a flipchart during a working session"
+                 loading="lazy" decoding="async">
+          </picture>
+        </figure>
       </div>
 
       <ol class="roles">

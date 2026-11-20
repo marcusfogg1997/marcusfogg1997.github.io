@@ -505,6 +505,12 @@ section[id] { scroll-margin-top: 2rem; }
 .about__narrative p { color: var(--ink); max-width: 32em; }
 .about__narrative p:last-child { margin-top: 1.75rem; }
 
+.about__photo {
+  margin: clamp(2rem, 4vw, 2.75rem) 0 0;
+  max-width: 100%;
+}
+.about__photo img { width: 100%; }
+
 .role {
   border-top: 1px solid var(--rule);
   padding-block: clamp(1.25rem, 2.5vw, 1.75rem);
