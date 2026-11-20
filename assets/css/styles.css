@@ -497,6 +497,9 @@ section[id] { scroll-margin-top: 2rem; }
   .about__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
+/* no eyebrow above this one, so the heading sits at the top of its column */
+.about__title { margin-top: 0; }
+
 .about__narrative p + p { margin-top: 1.25rem; }
 .about__narrative .section-title + p { margin-top: 1.75rem; }
 .about__narrative p { color: var(--ink); max-width: 32em; }
@@ -531,8 +534,11 @@ section[id] { scroll-margin-top: 2rem; }
   gap: clamp(2rem, 4vw, 3rem);
   margin-top: clamp(2.5rem, 5vw, 4rem);
 }
-@media (min-width: 52rem) {
-  .pillars { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (min-width: 40rem) {
+  .pillars { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 64rem) {
+  .pillars { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 
 .pillar { border-top: 1px solid var(--rule); padding-top: 1.5rem; }
