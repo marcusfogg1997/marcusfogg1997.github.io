@@ -293,9 +293,16 @@ section[id] { scroll-margin-top: calc(var(--header-clear) + 1rem); }
   color: var(--ink);
 }
 
+/* Wraps rather than overflows. With five items there isn't room for one line on
+   the narrowest phones, and a second row of nav is better than a page that
+   scrolls sideways. */
 .site-nav {
   display: flex;
-  gap: clamp(1.25rem, 3vw, 2.5rem);
+  flex-wrap: wrap;
+  gap: 0.45rem clamp(1.25rem, 3vw, 2.5rem);
+}
+@media (max-width: 24rem) {
+  .site-nav { gap: 0.45rem 0.875rem; }
 }
 .site-nav a {
   font-size: var(--fs-eyebrow);
@@ -360,7 +367,10 @@ section[id] { scroll-margin-top: calc(var(--header-clear) + 1rem); }
   .hero__inner {
     grid-template-columns: minmax(0, 624fr) minmax(0, 291fr);
   }
-  .hero__portrait { justify-self: end; }
+  /* A square portrait can't fill a hero this tall, so rather than leave the
+     whole gap under it, centre it against the lead paragraph and let the space
+     fall either side. */
+  .hero__portrait { justify-self: end; align-self: center; }
 }
 
 /* ------------------------------------------------------------- Worked at -- */

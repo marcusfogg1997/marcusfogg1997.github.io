@@ -14,6 +14,7 @@ works, it just stops highlighting.
 index.html                       the homepage
 cv.html                          the CV, also the source for the PDF
 robots.txt, sitemap.xml          for search engines and AI crawlers
+llms.txt                         plain-text summary of the site for LLMs
 assets/css/styles.css            all styling, design tokens at the top
 assets/fonts/                    Cormorant + Instrument Sans (self-hosted .woff2)
 assets/img/                      portrait at 3 sizes, WebP + JPEG, plus favicon
@@ -322,6 +323,15 @@ animating on its own, so it's an indicator, not movement.
 `robots.txt` allows everything, including the AI crawlers that increasingly
 answer "who is Marcus Fogg" questions, and points at `sitemap.xml`.
 
+`llms.txt` is a plain-markdown summary of the site at the root, following the
+llmstxt.org convention: who Marcus is, what each page holds, the client work
+with its figures, and the event programme. An assistant answering a question
+about him can read one short file instead of parsing the whole page, which
+makes it far likelier to get the numbers and the client names right. Nothing
+links to it; crawlers look for it by convention. **Keep it in step with the
+copy**, since a stale llms.txt is worse than none: it would be quoted back
+confidently.
+
 `index.html` carries a JSON-LD `Person` block: job title, employer, location,
 what he works on, and the LinkedIn profile as `sameAs`. That's what Google and
 the AI crawlers read to build an answer from his own words rather than a
@@ -336,6 +346,22 @@ Rerun it after changing the card or the portrait:
 python3 -m http.server 8000 &
 python3 scripts/og-image.py
 ```
+
+## The portrait
+
+`scripts/portrait.py` rebuilds the hero headshot from
+`originals/marcus-fogg-original.png` and writes all six files the `<picture>`
+element asks for. The photograph as supplied has Marcus left of centre, with
+more park on the right than the left, which reads as him standing to one side
+in the square frame the hero draws.
+
+`FACE_X` in that script is where his face sits across the original, measured
+off the rendered page rather than guessed. The script takes the widest square
+window that centres him, which means it can only trim the side he sits nearer
+to: at `FACE_X = 0.432` that's 1024px down to 884px off the right-hand edge.
+The 512 and 768 variants are genuine downscales from that; the 1024 is a 1.16x
+upscale, which is invisible in a box that renders at 300 CSS px. Re-measure
+`FACE_X` if the photograph is ever replaced.
 
 `scripts/check.py` renders the live page and shoots the states that are hard to
 judge from source: the hover plaques, the logo colours, the photo. It also
