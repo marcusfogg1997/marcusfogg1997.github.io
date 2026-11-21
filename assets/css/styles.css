@@ -472,15 +472,8 @@ section[id] { scroll-margin-top: calc(var(--header-clear) + 1rem); }
 .work__grid + .work__grid { margin-top: clamp(1.25rem, 2.5vw, 1.75rem); }
 
 @media (min-width: 52rem) {
-  .work__grid--feature { grid-template-columns: minmax(0, 1fr); }
   .work__grid--compact { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
-
-/* The in-house card runs the full width, so the copy gets a measure of its own
-   and the figures come up a size. */
-.case--feature .case__summary { max-width: 48em; }
-.case--feature .stat-row { max-width: 46rem; margin-top: 2.5rem; }
-.case--feature .stat__figure { font-size: var(--fs-stat-md); }
 
 .case {
   display: flex;
@@ -573,6 +566,90 @@ section[id] { scroll-margin-top: calc(var(--header-clear) + 1rem); }
   font-size: 0.8125rem;
   line-height: 1.45;
   color: var(--on-dark);
+}
+
+/* ------------------------------------------------- In-house: breakfasts -- */
+
+/* Mist between the near-black Selected work panel and the cream About block,
+   so the three read as three things rather than one long scroll. */
+.events {
+  background: var(--mist);
+  padding-block: var(--section-y);
+}
+
+.events__grid {
+  display: grid;
+  gap: clamp(2.5rem, 5vw, 3.5rem);
+  align-items: start;
+  margin-top: clamp(2.5rem, 5vw, 3.5rem);
+}
+@media (min-width: 56rem) {
+  .events__grid { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); }
+}
+
+.events__lead { max-width: 34em; }
+.events__media { margin: 0; }
+.events__caption {
+  margin-top: 0.875rem;
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+
+.events .stat-row {
+  margin-top: clamp(2.5rem, 5vw, 3.5rem);
+  padding-top: clamp(1.75rem, 3vw, 2.25rem);
+  border-top: 1px solid var(--rule);
+}
+
+/* The figures are white on the dark cards, so on mist they take the Proof row's
+   treatment instead. */
+.stat-row--light .stat__figure {
+  color: var(--green);
+  font-size: var(--fs-stat-md);
+}
+.stat-row--light .stat__label { color: var(--muted); }
+
+/* --------------------------------------------------------------- Video -- */
+
+.video {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--ink-deep);
+}
+.video__play {
+  position: absolute;
+  inset: 0;
+  display: block;
+  cursor: pointer;
+}
+.video__play img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.video__play:hover img { transform: scale(1.03); }
+
+.video__icon {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: clamp(3.25rem, 2.5rem + 2.5vw, 4.5rem);
+  height: clamp(3.25rem, 2.5rem + 2.5vw, 4.5rem);
+  transform: translate(-50%, -50%);
+  transition: transform 0.3s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.video__play:hover .video__icon { transform: translate(-50%, -50%) scale(1.08); }
+.video__icon svg { width: 100%; height: 100%; display: block; }
+
+/* Once the player is in, it fills the same box the poster did. */
+.video iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
 }
 
 /* ----------------------------------------------------------------- About -- */

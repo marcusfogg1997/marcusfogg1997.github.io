@@ -209,50 +209,9 @@
       </h2>
       <p class="lead lead--on-dark work__intro">
         Client accounts I&rsquo;ve led at Rocket SaaS, delivered with our specialists and
-        the clients&rsquo; own marketing teams, plus the event programme I built for the
-        agency itself. I ran most of these as an Account Director, and still work across
-        client accounts now as Director of Marketing.
+        the clients&rsquo; own marketing teams. I ran these as an Account Director, and
+        still work across client accounts now as Director of Marketing.
       </p>
-
-      <!-- The in-house programme leads: it's the one piece here that's mine end to
-           end rather than a team delivery, so it gets the full width to itself. -->
-      <div class="work__grid work__grid--feature">
-
-        <article class="case case--feature">
-          <h3 class="case__logo">
-            <a href="https://rocket-saas.io/" target="_blank" rel="noopener">
-              <img src="assets/img/logos/rocket-saas.png" alt="Rocket SaaS" width="749" height="200" style="--s: 1.13" loading="lazy" decoding="async">
-            </a>
-          </h3>
-          <p class="eyebrow eyebrow--dim">In-house demand generation</p>
-          <p class="case__summary">
-            Rocket SaaS runs a breakfast for SaaS founders and marketing leaders. I built
-            the programme: the venue, the guest list, the promotion across paid and
-            organic, the reminder sequence that keeps people turning up, and the Asana
-            template the team now runs each one from. Our founder and strategy team
-            present on the day. It started as one event a quarter and it&rsquo;s moving to
-            one a month. It&rsquo;s part of what I&rsquo;ve worked on as the company has
-            grown from &pound;1m to &pound;7m ARR.
-          </p>
-
-          <div class="stat-row">
-            <p class="stat">
-              <span class="stat__figure">15%</span>
-              <span class="stat__label">of qualified deals sourced from events</span>
-            </p>
-            <p class="stat">
-              <span class="stat__figure">&pound;1.5m</span>
-              <span class="stat__label">ARR from those deals</span>
-            </p>
-            <p class="stat">
-              <span class="stat__figure">4&times;</span>
-              <span class="stat__label">the cadence, quarterly to monthly</span>
-            </p>
-          </div>
-
-        </article>
-
-      </div>
 
       <div class="work__grid">
 
@@ -378,6 +337,65 @@
           </p>
         </article>
 
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────────────── In-house: the breakfasts ───────────────── -->
+  <section class="events" id="events">
+    <div class="container">
+      <p class="eyebrow">In-house demand generation</p>
+      <h2 class="section-title">The breakfast series.</h2>
+
+      <div class="events__grid">
+        <p class="lead events__lead">
+          Rocket SaaS runs a breakfast for SaaS founders and marketing leaders. I built
+          the programme: the venue, the guest list, the promotion across paid and
+          organic, the reminder sequence that keeps people turning up, and the Asana
+          template the team now runs each one from. It started as one event a quarter
+          and it&rsquo;s moving to one a month, part of what I&rsquo;ve worked on as the
+          company has grown from &pound;1m to &pound;7m ARR.
+        </p>
+
+        <figure class="events__media">
+          <!-- A facade, not an embed. Nothing of YouTube's loads until somebody asks
+               for it, which keeps roughly a megabyte of player script and its cookies
+               off every page view. Without JS the poster is simply a link to the
+               video, so it still works. -->
+          <div class="video" data-video="eNpXxrxnP3s">
+            <a class="video__play" href="https://www.youtube.com/watch?v=eNpXxrxnP3s"
+               target="_blank" rel="noopener"
+               aria-label="Play the event recap video on YouTube">
+              <img src="https://i.ytimg.com/vi/eNpXxrxnP3s/maxresdefault.jpg"
+                   alt="" width="1280" height="720" loading="lazy" decoding="async">
+              <span class="video__icon" aria-hidden="true">
+                <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="32" cy="32" r="31" fill="rgba(248,247,243,0.94)"/>
+                  <path d="M26 21.5 44 32 26 42.5z" fill="#0b5031"/>
+                </svg>
+              </span>
+            </a>
+          </div>
+          <figcaption class="events__caption">
+            Our founder Ryan James recapping the first event of 2026. I build and run the
+            programme; the strategy team present on the day.
+          </figcaption>
+        </figure>
+      </div>
+
+      <div class="stat-row stat-row--light">
+        <p class="stat">
+          <span class="stat__figure">15%</span>
+          <span class="stat__label">of qualified deals sourced from events</span>
+        </p>
+        <p class="stat">
+          <span class="stat__figure">&pound;1.5m</span>
+          <span class="stat__label">ARR from those deals</span>
+        </p>
+        <p class="stat">
+          <span class="stat__figure">4&times;</span>
+          <span class="stat__label">the cadence, quarterly to monthly</span>
+        </p>
       </div>
     </div>
   </section>
@@ -604,6 +622,43 @@
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
     measure();
     update();
+  })();
+
+  /* --- Video: swap the poster for the player on demand ------------------- */
+
+  // Also runs for reduced motion: somebody clicking play has asked for it.
+  (function () {
+    var holder = document.querySelector('[data-video]');
+    var link = holder && holder.querySelector('.video__play');
+    if (!link) return;
+    var id = holder.getAttribute('data-video');
+
+    // maxresdefault doesn't exist for every video, so fall back once to the
+    // size that always does. If that fails too the poster is hidden rather
+    // than left as a broken-image icon: the dark panel and the play button
+    // still read as a video.
+    var poster = link.querySelector('img');
+    if (poster) {
+      var tried = false;
+      poster.addEventListener('error', function () {
+        if (tried) { poster.style.display = 'none'; return; }
+        tried = true;
+        poster.src = 'https://i.ytimg.com/vi/' + id + '/hqdefault.jpg';
+      });
+    }
+
+    link.addEventListener('click', function (e) {
+      // Let modified clicks through, so open-in-new-tab still works.
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+      e.preventDefault();
+      var frame = document.createElement('iframe');
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&rel=0';
+      frame.title = 'Rocket SaaS demand generation event recap';
+      frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; ' +
+                    'gyroscope; picture-in-picture; web-share';
+      frame.allowFullscreen = true;
+      holder.replaceChild(frame, link);
+    });
   })();
 
   if (reduced || !canObserve) return;

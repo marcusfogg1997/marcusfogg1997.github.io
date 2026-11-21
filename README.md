@@ -227,6 +227,32 @@ off you get the finished state without the movement.
 - **Logos fill with colour on hover.** Neither photo of Marcus has any
   treatment on it: both render as shot, hovered or not.
 
+## The breakfast series section and its video
+
+The in-house event programme has its own section rather than sitting among the
+client cards, because it's the one piece that's Marcus's end to end rather than
+a team delivery. It's on `--mist`, between the near-black Selected work panel
+and the cream About block, so the three read as three things.
+
+The video is a **facade, not an embed**. What's in the markup is a poster image
+and a play button wrapped in a plain link to YouTube. The player iframe is only
+created when somebody clicks, which keeps roughly a megabyte of YouTube script
+and its cookies off every page view, and the site makes no YouTube requests at
+all until then. The iframe points at `youtube-nocookie.com`. Modified clicks
+(cmd, ctrl, shift, middle button) are let through, so open-in-new-tab still
+works, and without JavaScript the poster is simply a link to the video.
+
+The poster is currently YouTube's own thumbnail from `i.ytimg.com`, which is
+the single third-party request the site makes on load. Everything else,
+including the fonts, is self-hosted. **Replacing it with a photo of an actual
+event, saved into `assets/img/`, would remove that request and show the room
+rather than a video still.** That's the better image anyway: a full room is the
+proof the figures can't carry.
+
+`maxresdefault.jpg` doesn't exist for every video, so the script falls back once
+to `hqdefault.jpg`, and hides the image entirely if that fails too. The dark
+panel and the play button still read as a video with no poster at all.
+
 ## The sticky header
 
 Its height is deliberately constant. It sits in normal flow, so shrinking it on

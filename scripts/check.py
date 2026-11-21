@@ -59,16 +59,16 @@ async def main():
         await rest()
         await page.screenshot(path=f"{OUT}/full.png", full_page=True)
 
-        # The in-house card, resting.
-        await page.locator(".case--feature").scroll_into_view_if_needed()
+        # The in-house section with the video facade.
+        await page.locator(".events").scroll_into_view_if_needed()
         await page.wait_for_timeout(400)
         await rest()
-        await page.locator(".case--feature").screenshot(path=f"{OUT}/feature.png")
+        await page.locator(".events").screenshot(path=f"{OUT}/events.png")
 
-        # The same card with the logo plaque and colours up.
-        await page.locator(".case--feature .case__logo a").hover()
+        # A full case card with the logo plaque and colours up.
+        await page.locator(".case").first.hover()
         await page.wait_for_timeout(700)
-        await page.locator(".case--feature").screenshot(path=f"{OUT}/feature-hover.png")
+        await page.locator(".case").first.screenshot(path=f"{OUT}/case-hover.png")
 
         # A compact card hovered, to check the darkest logos read on the plaque.
         await page.locator(".case--compact").nth(2).hover()
