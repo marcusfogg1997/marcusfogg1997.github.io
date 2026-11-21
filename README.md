@@ -175,10 +175,28 @@ The script quantises each PNG with `pngquant` if it's installed
 files come down by about two thirds. Without it the logos still build, just
 heavier.
 
-On the dark Selected Work cards, hovering a card fades a cream plaque in behind
-the logo before revealing its colours. Every one of these marks is drawn for a
-light background, and most of them are near-black: Ami and Startle would be
-invisible against the card without something to sit on.
+On the dark Selected Work cards the whole card inverts to cream on hover, which
+is also what makes the logo colours work. Every one of these marks is drawn for
+a light background and most are near-black, so revealing their colours against
+the dark card would have made Ami and Startle disappear. Once the card itself is
+the light surface the problem goes away, with no panel behind the logo.
+
+## Clickable cards
+
+Each Selected Work card is clickable across its whole area, using the stretched
+link pattern: the logo's anchor carries an `::after` pinned to `inset: 0`, and
+`.case` is the positioned ancestor it sizes against. The anchor itself must stay
+unpositioned or the overlay shrinks to the logo.
+
+That would otherwise swallow the "Read case study" button, which goes somewhere
+different, so that button is lifted above it with `position: relative;
+z-index: 1`. The split is: **the card goes to the client's website, the button
+goes to the Rocket SaaS case study.** Worth re-checking with `elementFromPoint`
+if anything inside a card changes.
+
+The inverted colours have to be named one by one. The card's children each
+carry their own colour (`--on-dark`, `--cream`), so none of them inherit their
+way to readable when the background flips.
 
 The script flattens each source onto white before it does anything else. Some
 logos arrive on a transparent background, and skipping that step makes the
@@ -252,6 +270,24 @@ proof the figures can't carry.
 `maxresdefault.jpg` doesn't exist for every video, so the script falls back once
 to `hqdefault.jpg`, and hides the image entirely if that fails too. The dark
 panel and the play button still read as a video with no poster at all.
+
+The player is torn out again and the poster restored when you click anywhere
+else on the page, press Escape, or scroll it out of view. Removing the iframe
+is also what stops the audio: pausing a cross-origin player needs YouTube's own
+API script, which is the weight the facade exists to avoid. A click inside the
+player belongs to the iframe and never reaches the page, so YouTube's controls
+keep working.
+
+The document listener is bound on a `setTimeout` rather than immediately,
+because the click that opens the player is still bubbling, and its target is
+the link that was just detached from the DOM. Bound synchronously, that reads
+as a click outside and closes the player again instantly.
+
+The iframe sets `referrerPolicy = 'strict-origin-when-cross-origin'`. Without
+it the player can't tell which site embedded it and shows **"Error 153: video
+player configuration error"** instead of playing. For the same reason it will
+not work from a `file://` page, so test it on the live URL rather than by
+opening `index.html` from a folder.
 
 ## The sticky header
 

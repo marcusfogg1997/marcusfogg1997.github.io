@@ -647,17 +647,64 @@
       });
     }
 
+    var frame = null;
+    var watcher = null;
+
+    // Put the poster back. Tearing the iframe out is also what stops the audio:
+    // there's no way to pause a cross-origin player without loading YouTube's
+    // own API script, which is the weight the facade exists to avoid.
+    function close() {
+      if (!frame) return;
+      document.removeEventListener('click', onClickOut);
+      document.removeEventListener('keydown', onKey);
+      if (watcher) { watcher.disconnect(); watcher = null; }
+      holder.replaceChild(link, frame);
+      frame = null;
+    }
+
+    // A click inside the player belongs to the iframe and never reaches this
+    // handler, so YouTube's own controls carry on working.
+    function onClickOut(e) {
+      if (!holder.contains(e.target)) close();
+    }
+
+    function onKey(e) {
+      if (e.key === 'Escape' || e.key === 'Esc') close();
+    }
+
     link.addEventListener('click', function (e) {
       // Let modified clicks through, so open-in-new-tab still works.
       if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
       e.preventDefault();
-      var frame = document.createElement('iframe');
+      frame = document.createElement('iframe');
       frame.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&rel=0';
       frame.title = 'Rocket SaaS demand generation event recap';
+      // Without this the player can't tell which site embedded it and refuses
+      // to start, showing "Error 153: video player configuration error". It
+      // also fails from a file:// page, which isn't a referrer YouTube accepts,
+      // so test this one over http rather than by opening index.html directly.
+      frame.referrerPolicy = 'strict-origin-when-cross-origin';
       frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; ' +
                     'gyroscope; picture-in-picture; web-share';
       frame.allowFullscreen = true;
       holder.replaceChild(frame, link);
+
+      // Bound on the next tick, because this very click is still bubbling and
+      // its target is the link we just detached, which would read as a click
+      // outside and shut the player again immediately.
+      setTimeout(function () {
+        document.addEventListener('click', onClickOut);
+        document.addEventListener('keydown', onKey);
+      }, 0);
+
+      // Scrolling past it stops it too, rather than leaving a voice following
+      // you down the page.
+      if ('IntersectionObserver' in window) {
+        watcher = new IntersectionObserver(function (entries) {
+          entries.forEach(function (en) { if (!en.isIntersecting) close(); });
+        }, { threshold: 0 });
+        watcher.observe(holder);
+      }
     });
   })();
 
