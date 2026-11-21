@@ -11,11 +11,17 @@ works, it just stops highlighting.
 ## What's in here
 
 ```
-index.html                     the homepage
-assets/css/styles.css          all styling, design tokens at the top
-assets/fonts/                  Cormorant + Instrument Sans (self-hosted .woff2)
-assets/img/                    portrait at 3 sizes, WebP + JPEG, plus favicon
+index.html                       the homepage
+cv.html                          the CV, also the source for the PDF
+robots.txt, sitemap.xml          for search engines and AI crawlers
+assets/css/styles.css            all styling, design tokens at the top
+assets/fonts/                    Cormorant + Instrument Sans (self-hosted .woff2)
+assets/img/                      portrait at 3 sizes, WebP + JPEG, plus favicon
+assets/img/logos/                client and employer logos, one colour file each
+assets/img/og-marcus-fogg.jpg    the image shown when the site is shared
 assets/files/marcus-fogg-cv.pdf  the CV the site links to
+originals/                       the colour logo files the above are built from
+scripts/                         build and check scripts, not served
 ```
 
 Design tokens (colours, type scale, spacing) are CSS custom properties in the
@@ -144,16 +150,35 @@ filename, and both links on the page pick it up. Nothing else to change.
 
 ## Logos
 
-`assets/img/logos/` holds two sets, both made from the colour originals by
-`scripts/logos.py`: every non-white pixel becomes the target colour, and white
-becomes transparent.
+`assets/img/logos/` holds one file per brand, made from the colour originals by
+`scripts/logos.py`: the background is knocked out to transparent and the
+artwork keeps its own colours.
 
-- `*-white.png` for the five clients, used on the dark Selected Work cards
-- `*-ink.png` for the six employers, used on the cream Where I've worked row
+That single file covers all three states the site needs, using a CSS filter:
+
+| Where | Filter | Looks like |
+| --- | --- | --- |
+| Where I've worked row | `brightness(0) opacity(.58)` | ink |
+| Selected Work cards | `brightness(0) invert(1) opacity(.92)` | white |
+| either, on hover | `none` | the real brand colours |
+
+`brightness(0)` multiplies every colour channel by zero without touching the
+alpha, so the artwork collapses to a flat silhouette with its holes intact.
+That's why there's no second set of mono files to keep in step.
 
 It's a knockout rather than a flatten, which is why Crown's crown, Homeflow's
 chevron, Famly's heart and Reload's arrow still read as shapes. They're cut out
 of the mark rather than drawn on top of it.
+
+The script quantises each PNG with `pngquant` if it's installed
+(`pip install pngquant-cli`). Flat-colour artwork loses nothing visible and the
+files come down by about two thirds. Without it the logos still build, just
+heavier.
+
+On the dark Selected Work cards, hovering a card fades a cream plaque in behind
+the logo before revealing its colours. Every one of these marks is drawn for a
+light background, and most of them are near-black: Ami and Startle would be
+invisible against the card without something to sit on.
 
 The script flattens each source onto white before it does anything else. Some
 logos arrive on a transparent background, and skipping that step makes the
@@ -176,12 +201,89 @@ to `SOURCES` in `scripts/logos.py`, run it, then set an `--s` value on the new
 image, eyeballed against the others in its row.
 
 `originals/` holds the colour source files. Nothing on the site links to them,
-so they add nothing to page weight, but keeping them means the mono versions
-can be regenerated without hunting the files down again.
+so they add nothing to page weight, but keeping them means the logos can be
+regenerated without hunting the files down again.
 
-A logo with a gradient or a photographic element flattens to a white blob. If a
+A logo with a gradient or a photographic element knocks out muddily. If a
 client's brand kit has an official reversed or mono version, use that instead
 of converting the colour one.
+
+## Motion
+
+All of it is decoration layered on top of a page that's already complete. The
+figures are in the HTML, the icons render on their own, and the script bails
+out entirely for anyone whose system asks for reduced motion. With JavaScript
+off you get the finished state without the movement.
+
+- **Figures count up** the first time they scroll into view. The script splits
+  `£140k` into `£`, `140`, `k` so only the number moves, then writes the
+  authored text back at the end. A `setTimeout` backstop does the same if the
+  frames dry up, which happens in a background tab: a figure stuck at `£139k`
+  would be a quietly wrong number on a page whose whole job is the numbers.
+- **Pillar icons draw themselves in.** Each shape is measured with
+  `getTotalLength()`, dashed by that length and offset by it, which hides the
+  stroke; releasing the offset draws it back on. The solid dot in the second
+  icon has no stroke to draw, so it fades in instead.
+- **Logos fill with colour on hover.** Neither photo of Marcus has any
+  treatment on it: both render as shot, hovered or not.
+
+## The sticky header
+
+Its height is deliberately constant. It sits in normal flow, so shrinking it on
+scroll would shorten the document and shunt everything below it upwards, which
+also lands anchor jumps underneath the bar. The only thing that changes on
+scroll is the hairline along the bottom, via an `is-stuck` class.
+
+It stays cream over the near-black Selected work panel and the green Contact
+block rather than inverting per section, which keeps it one predictable object.
+
+Two custom properties, not one:
+
+- `--header-h` drives the header's own `min-height`
+- `--header-clear` is what `scroll-margin-top` on the anchor targets uses
+
+They're separate for two reasons. The header ends up taller than its clamp when
+the nav wraps to a second line on a narrow screen, so the script measures the
+real height into `--header-clear`; predicting that wrap in CSS alone is
+guesswork. And feeding a measured height back into `min-height` would pin the
+header at its largest size and stop it shrinking again when the window widens.
+Without JavaScript, `--header-clear` falls back to `--header-h` and anchor
+landings are merely a little tight on narrow screens.
+
+The progress bar along the bottom edge is scaled with `transform: scaleX()`
+rather than resized, so dragging the scrollbar doesn't cost a layout on every
+frame. It runs even under reduced motion: it tracks the scrollbar rather than
+animating on its own, so it's an indicator, not movement.
+
+## Search and sharing
+
+`robots.txt` allows everything, including the AI crawlers that increasingly
+answer "who is Marcus Fogg" questions, and points at `sitemap.xml`.
+
+`index.html` carries a JSON-LD `Person` block: job title, employer, location,
+what he works on, and the LinkedIn profile as `sameAs`. That's what Google and
+the AI crawlers read to build an answer from his own words rather than a
+scrape. Keep it in step with the copy when the copy changes.
+
+`assets/img/og-marcus-fogg.jpg` is what LinkedIn and Slack show when the site
+is shared. It's rendered from `scripts/og-card.html` by `scripts/og-image.py`,
+which pulls the real stylesheet, so it uses the site's own fonts and tokens.
+Rerun it after changing the card or the portrait:
+
+```bash
+python3 -m http.server 8000 &
+python3 scripts/og-image.py
+```
+
+`scripts/check.py` renders the live page and shoots the states that are hard to
+judge from source: the hover plaques, the logo colours, the photo. It also
+reports whether every figure landed on its authored value and whether the icon
+strokes were released. Worth running after any change to the motion.
+
+One trap it has already caught: Chromium recomputes `:hover` when the page
+scrolls, so a pointer left mid-screen silently hovers whatever scrolls under
+it, and "resting" screenshots come out in their hover state. The script parks
+the pointer in the corner before every resting shot.
 
 ## Replacing the portrait
 

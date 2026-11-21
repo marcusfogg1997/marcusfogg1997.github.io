@@ -54,6 +54,7 @@
   --fs-h2:      clamp(2.25rem, 1.714rem + 2.286vw, 4rem);
   --fs-h3:      clamp(1.75rem, 1.444rem + 1.306vw, 2.75rem);
   --fs-stat:    clamp(3.5rem, 2.58rem + 3.92vw, 6.5rem);
+  --fs-stat-md: clamp(2.25rem, 1.75rem + 1.6vw, 3.25rem);
   --fs-stat-sm: clamp(2rem, 1.6rem + 1.2vw, 2.75rem);
   --fs-proof:   clamp(1.625rem, 1.4rem + 0.7vw, 2.125rem);
   --fs-role:    clamp(1.4375rem, 1.35rem + 0.35vw, 1.75rem);
@@ -66,6 +67,14 @@
   --gutter: clamp(1.25rem, 4vw, 2.5rem);
   --section-y: clamp(4rem, 2rem + 8vw, 7.5rem);
   --container: 1140px;
+  /* The sticky header's height, and the room anything has to leave to clear
+     it. They're separate because the header can end up taller than the clamp
+     when the nav wraps onto a second line on a narrow screen: the script
+     measures the real height into --header-clear, and this stays the fallback
+     for when it can't. Keeping them apart also stops min-height being fed its
+     own measurement, which would leave the header unable to shrink again. */
+  --header-h: clamp(4.75rem, 2.5rem + 4.5vw, 7rem);
+  --header-clear: var(--header-h);
 }
 
 /* ---------------------------------------------------------------- Reset -- */
@@ -128,8 +137,9 @@ a { color: inherit; }
   padding-inline: var(--gutter);
 }
 
-/* so a jump from the nav doesn't land flush against the top of the window */
-section[id] { scroll-margin-top: 2rem; }
+/* Clears the sticky header, so a jump from the nav doesn't land underneath it,
+   plus a little air. Tied to --header-h so the two can't drift apart. */
+section[id] { scroll-margin-top: calc(var(--header-clear) + 1rem); }
 
 .eyebrow {
   font-family: var(--sans);
@@ -224,15 +234,54 @@ section[id] { scroll-margin-top: 2rem; }
 
 /* ---------------------------------------------------------------- Header -- */
 
+/* Sticky, opaque and self-contained, so it reads the same over the cream, the
+   near-black Selected work panel and the green Contact block. A hairline fades
+   in once you've left the hero, which is the only thing that changes: its
+   height is deliberately constant.
+
+   It's in normal flow, so shrinking it on scroll would shorten the document
+   and shunt everything below it upwards, which also lands anchor jumps
+   underneath the bar. min-height rather than height so it can still grow if
+   the nav wraps on a narrow screen. */
 .site-header {
-  padding-block: clamp(1.5rem, 3vw, 2.25rem);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  min-height: var(--header-h);
+  padding-block: 0.75rem;
+  background: var(--cream);
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.3s ease;
 }
+.site-header.is-stuck { border-bottom-color: var(--rule); }
+
+/* Scaled rather than resized: transform runs on the compositor, so dragging
+   the scrollbar doesn't cost a layout on every frame. */
+.site-header__progress {
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 100%;
+  height: 2px;
+  background: var(--green);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
 .site-header__inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1.5rem;
   flex-wrap: wrap;
+}
+/* Below this the nav can't share a line with the wordmark, so it wraps. Tighten
+   the row gap: on a phone the header is stuck to the top of a short screen and
+   every pixel it takes is one less of the page. */
+@media (max-width: 34rem) {
+  .site-header__inner { gap: 0.5rem 1.5rem; }
 }
 
 .wordmark {
@@ -352,12 +401,20 @@ section[id] { scroll-margin-top: 2rem; }
   gap: var(--logo-gap);
   padding-right: var(--logo-gap);
 }
+/* One colour file per logo does all three states. brightness(0) crushes every
+   channel to zero without touching alpha, so the artwork becomes the same
+   silhouette a mono file would give, holes and all; opacity() then sits it back
+   at the weight the row wants. Dropping the filter on hover reveals the real
+   brand colours with no second request. */
 .marquee__set img {
   height: calc(var(--logo-base) * var(--s, 1));
   width: auto;
   max-width: none;
-  opacity: 0.62;
+  filter: brightness(0) opacity(0.58);
+  transition: filter 0.45s ease;
 }
+.marquee__set li:hover img,
+.marquee__set li:focus-within img { filter: none; }
 
 /* No animation for anyone who's asked for less motion. The row becomes a
    plain scrollable strip so every logo is still reachable. */
@@ -411,10 +468,19 @@ section[id] { scroll-margin-top: 2rem; }
   .work__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
-.work__grid--compact { margin-top: clamp(1.25rem, 2.5vw, 1.75rem); }
+/* only the first grid needs the big gap down from the intro */
+.work__grid + .work__grid { margin-top: clamp(1.25rem, 2.5vw, 1.75rem); }
+
 @media (min-width: 52rem) {
+  .work__grid--feature { grid-template-columns: minmax(0, 1fr); }
   .work__grid--compact { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
+
+/* The in-house card runs the full width, so the copy gets a measure of its own
+   and the figures come up a size. */
+.case--feature .case__summary { max-width: 48em; }
+.case--feature .stat-row { max-width: 46rem; margin-top: 2.5rem; }
+.case--feature .stat__figure { font-size: var(--fs-stat-md); }
 
 .case {
   display: flex;
@@ -433,11 +499,37 @@ section[id] { scroll-margin-top: 2rem; }
   min-height: calc(var(--logo-base) * 1.6);
   margin: 0;
 }
+/* The logo links to the client. Hovering the card reveals the real colours,
+   but these marks are all drawn for light backgrounds and most of them would
+   disappear against this one, so a cream plaque fades in behind to give them
+   something to sit on. */
+.case__logo a {
+  position: relative;
+  display: inline-flex;
+  padding: 0.5rem 0.75rem;
+  margin: -0.5rem -0.75rem;
+  border-radius: 3px;
+}
+.case__logo a::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--cream);
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
 .case__logo img {
+  position: relative;      /* above the plaque */
   height: calc(var(--logo-base) * var(--s, 1));
   width: auto;
-  opacity: 0.92;
+  filter: brightness(0) invert(1) opacity(0.92);
+  transition: filter 0.45s ease;
 }
+.case:hover .case__logo a::before,
+.case__logo a:focus-visible::before { opacity: 1; }
+.case:hover .case__logo img,
+.case__logo a:focus-visible img { filter: none; }
 .case__logo--sm {
   --logo-base: clamp(1.375rem, 1.15rem + 0.6vw, 1.75rem);
   min-height: calc(var(--logo-base) * 0.95);
@@ -452,14 +544,11 @@ section[id] { scroll-margin-top: 2rem; }
   color: var(--on-dark);
   max-width: 32em;
 }
-/* margin-top:auto pushes the role note and CTA down so the two cards'
-   buttons line up however much copy sits above them */
-.case__role {
-  margin-top: auto;
-  padding-top: 1.75rem;
-  font-size: var(--fs-small);
-  color: var(--on-dark);
-}
+/* margin-bottom:auto on the figures soaks up whatever space is spare, which
+   pushes the CTA to the floor so the two cards' buttons line up however much
+   copy sits above them. Doing it here rather than on the button keeps the
+   1.75rem gap intact on the taller card, where there's no spare space left. */
+.case .stat-row { margin-bottom: auto; }
 .case .btn--outline { margin-top: 1.75rem; }
 
 /* three figures of equal weight, so no single number dominates the card */
@@ -511,6 +600,8 @@ section[id] { scroll-margin-top: 2rem; }
   margin: clamp(2rem, 4vw, 2.75rem) 0 0;
   max-width: 100%;
 }
+/* No greyscale and no hover fill on either photo of Marcus: both render as
+   shot. The colour-on-hover treatment is on the logos only. */
 .about__photo img { width: 100%; }
 
 .role {
@@ -557,7 +648,12 @@ section[id] { scroll-margin-top: 2rem; }
   width: clamp(2.25rem, 1.9rem + 1.1vw, 2.75rem);
   height: clamp(2.25rem, 1.9rem + 1.1vw, 2.75rem);
   color: var(--green);
+  transition: transform 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
+/* The strokes draw themselves in when the pillar scrolls up. The dash lengths
+   and the per-shape delays are set in JS, which can measure each shape;
+   without JS the icons simply render as normal. */
+.pillar:hover .pillar__icon { transform: translateY(-3px) scale(1.06); }
 .pillar__title {
   margin-top: 1.125rem;
   font-family: var(--display);

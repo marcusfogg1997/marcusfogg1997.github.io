@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<!-- Source for assets/img/og-marcus-fogg.jpg, the image LinkedIn and the rest
+     show when the site is shared. Rendered at 1200x630 by scripts/og-image.py.
+     It pulls the real stylesheet, so the tokens and webfonts are the site's. -->
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<!-- It lives in the repo, so GitHub Pages serves it. Keep it out of search. -->
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="../assets/css/styles.css">
+<style>
+  html, body { margin: 0; padding: 0; }
+  body {
+    width: 1200px;
+    height: 630px;
+    overflow: hidden;
+    background: var(--cream);
+    display: flex;
+  }
+
+  .card {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 72px;
+    align-items: center;
+    padding: 0 84px;
+  }
+
+  .name {
+    font-family: var(--display);
+    font-size: 104px;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.025em;
+    color: var(--ink);
+  }
+  .role {
+    margin-top: 30px;
+    padding-top: 30px;
+    border-top: 1px solid var(--rule);
+    font-family: var(--display);
+    font-size: 40px;
+    font-style: italic;
+    line-height: 1.25;
+    color: var(--green);
+  }
+  .skills {
+    margin-top: 26px;
+    font-family: var(--sans);
+    font-size: 21px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .portrait { width: 340px; height: 340px; }
+  .portrait img { width: 100%; height: 100%; object-fit: cover; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div>
+      <p class="name">Marcus Fogg</p>
+      <p class="role">Director of Marketing<br>at Rocket SaaS</p>
+      <p class="skills">Demand generation &middot; Positioning &middot; Events</p>
+    </div>
+    <div class="portrait">
+      <img src="../assets/img/marcus-fogg-1024.jpg" alt="">
+    </div>
+  </div>
+</body>
+</html>
